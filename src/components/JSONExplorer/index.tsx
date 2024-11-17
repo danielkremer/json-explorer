@@ -1,43 +1,46 @@
 import { useState } from 'react';
+import { SampleData } from '../../App';
 import Card from '../Card';
 import InputFieldLayout from '../InputFieldLayout';
 import JSONTreeWithClickableKeys from '../JSONWithClickableKeys';
+import PathDisplay from '../PathDisplay';
 
-const sampleData = {
-  date: '2021-10-27T07:49:14.896Z',
-  hasError: false,
-  fields: [
-    {
-      id: '4c212130',
-      prop: 'iban',
-      value: 'DE81200505501265402568',
-      hasError: false,
-    },
-  ],
+type Props = {
+  sampleData: SampleData;
 };
-const JSONExplorer = () => {
-  const [jsonData] = useState<any>(sampleData);
-  const [selectedPath, setSelectedPath] = useState<string | null>(null);
-  const [selectedValue, setSelectedValue] = useState<any>(null);
+
+const JSONExplorer = ({ sampleData }: Props) => {
+  const [jsonData] = useState(sampleData);
+  const [selectedPath, setSelectedPath] = useState<string>();
+  const [selectedValue, setSelectedValue] = useState<string>();
 
   const handlePropertyChange = (path: string) => {
     try {
-      const keys = path
+      const sanitizedPath = path.replace(/\s+/g, '');
+
+      const keys = sanitizedPath
         .replace(/^res\./, '')
         .replace(/\[(\d+)\]/g, '.$1')
         .split('.');
 
-      const value = keys.reduce((acc, key) => {
-        if (acc === undefined || acc === null) {
+      const value = keys.reduce((acc: any, key: string) => {
+        if (acc === undefined || acc === null || !(key in acc)) {
           throw new Error(`Invalid path: ${path}`);
         }
         return acc[key];
       }, jsonData);
 
-      setSelectedPath(path);
-      setSelectedValue(value?.toString());
+      if (typeof value === 'object' || typeof value === 'function') {
+        setSelectedPath(path);
+        setSelectedValue('undefined');
+        return;
+      } else {
+        setSelectedPath(path);
+        setSelectedValue(value.toString());
+      }
     } catch (error) {
-      console.error('Error resolving path:', path, error);
+      setSelectedPath(path);
+      setSelectedValue('undefined');
     }
   };
 
@@ -59,16 +62,7 @@ const JSONExplorer = () => {
           parentKey="res"
           onKeyClick={handlePropertyChange}
         />
-        {selectedPath && (
-          <div className="mt-4 p-4 bg-gray-50 border rounded shadow">
-            <p>
-              <strong>Path:</strong> {selectedPath}
-            </p>
-            <p>
-              <strong>Value:</strong> {JSON.stringify(selectedValue)}
-            </p>
-          </div>
-        )}
+        <PathDisplay path={selectedPath} value={selectedValue} />
       </Card>
     </div>
   );

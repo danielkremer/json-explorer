@@ -1,5 +1,7 @@
+import { SampleData } from '../../App';
+
 type Props = {
-  data: any;
+  data: SampleData;
   parentKey: string;
   onKeyClick: (path: string) => void;
   level?: number;

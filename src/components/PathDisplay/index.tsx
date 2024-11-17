@@ -1,10 +1,10 @@
 type Props = {
-  path: string;
+  path?: string;
   value: any;
 };
 
 const PathDisplay = ({ path, value }: Props) => (
-  <div className="mt-4 p-4 border rounded bg-white shadow">
+  <div className="mt-4 p-4 bg-gray-50 border rounded shadow">
     {path ? (
       <>
         <p>

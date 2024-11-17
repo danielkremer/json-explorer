@@ -30,7 +30,7 @@ const InputFieldLayout = ({
 
       <div className="flex-1">
         <InputField
-          label="Block Variable"
+          label="Block/Variable"
           value={blockVariable}
           onChange={() => {}}
           placeholder="Value will appear here..."
